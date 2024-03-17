@@ -1,0 +1,17 @@
+#!/bin/bash
+
+day="${1?day not specified}"
+
+if [ -d "$day" ]; then
+    echo "$day" already exists
+    exit 1
+fi
+
+set -e -x
+
+cp -R day00-template "$day"
+mv "$day/src/bin/day00a.rs" "$day/src/bin/${day}a.rs"
+find "$day" -type f -exec sed -i "s@day00@${day}@g" {} +
+sed -i "s@^\\]@    \"${day}\",\\n]@" Cargo.toml
+sed -i "s@^\( \+# end\)\$@            - ${day}\\n\1@" .github/workflows/ci.yml
+cargo test -p "$day"
