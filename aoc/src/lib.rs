@@ -3,8 +3,14 @@
 // file 'LICENSE', which is part of this source code package.
 
 use std::fmt::{Debug, Display};
-pub use std::io::{stdin, BufRead};
+pub use std::io::stdin;
+pub use std::io::BufRead;
+pub use std::io::BufReader;
+pub use std::io::Read;
+use std::path::PathBuf;
 use std::time::Instant;
+
+use clap::Parser;
 
 pub use color_eyre::eyre::eyre;
 pub use color_eyre::Report;
@@ -64,14 +70,31 @@ impl<T: Debug> std::cmp::Ord for OrdWrapper<T> {
 
 // main function
 
+#[derive(Parser)]
+#[command()]
+struct Cli {
+    /// Input file
+    filename: PathBuf,
+
+    /// Quiet mode: don't print reponse nor elapsed time
+    #[arg(short, long)]
+    quiet: bool,
+}
+
 pub fn elapsed(start: &Instant) -> String {
     format!("{}", humantime::Duration::from(start.elapsed()))
 }
 
-pub fn do_main<F: Fn() -> Result<T>, T: Display>(f: F) -> Result<()> {
+pub fn do_main<F: Fn(&mut dyn BufRead) -> Result<T>, T: Display>(f: F) -> Result<()> {
     color_eyre::install()?;
     let start = Instant::now();
-    println!("{}", f()?);
-    println!("Elapsed: {}", elapsed(&start));
+    let cli = Cli::parse();
+    let file = std::fs::File::open(cli.filename)?;
+    let mut reader = BufReader::new(file);
+    let result = f(&mut reader)?;
+    if !cli.quiet {
+        println!("{}", result);
+        println!("Elapsed: {}", elapsed(&start));
+    }
     Ok(())
 }
