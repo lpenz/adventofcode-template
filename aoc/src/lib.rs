@@ -11,47 +11,11 @@ pub use color_eyre::Report;
 pub use color_eyre::Result;
 
 #[macro_use]
-pub mod parser {
-    pub use color_eyre::eyre::eyre;
-    pub use color_eyre::Report;
-    pub use color_eyre::Result;
-    pub use combinator::all_consuming;
-    pub use nom::branch;
-    pub use nom::bytes::complete as bytes;
-    pub use nom::bytes::complete::tag;
-    pub use nom::character::complete as character;
-    pub use nom::character::complete::newline;
-    pub use nom::character::complete::satisfy;
-    pub use nom::combinator;
-    pub use nom::multi;
-    pub use nom::Finish;
-    pub use nom::IResult;
-    pub use std::io::BufRead;
+pub mod parser;
 
-    #[macro_export]
-    macro_rules! parse_with {
-        ($parser:expr, $buf:ident) => {{
-            let mut input = String::default();
-            $buf.read_to_string(&mut input)?;
-            let result = all_consuming($parser)(&input).finish();
-            Ok(result.map_err(|e| eyre!("error reading input: {:?}", e))?.1)
-        }};
-    }
+/*****************************************************************************/
 
-    pub fn space(input: &str) -> IResult<&str, &str> {
-        tag(" ")(input)
-    }
-
-    pub fn lowercase_char(input: &str) -> IResult<&str, char> {
-        satisfy(|c| c.is_ascii_lowercase())(input)
-    }
-
-    pub fn lowercase_str(input: &str) -> IResult<&str, String> {
-        let (input, cs) = multi::many1(lowercase_char)(input)?;
-        Ok((input, cs.into_iter().collect()))
-    }
-}
-
+/// Extend Option with ok_or_eyre
 pub trait OptionExt<T> {
     fn ok_or_eyre<M>(self, message: M) -> Result<T>
     where
@@ -69,6 +33,36 @@ impl<T> OptionExt<T> for Option<T> {
         }
     }
 }
+
+/*****************************************************************************/
+
+/// Wrapper that adds Eq and Ord using Debug
+#[derive(Debug)]
+pub struct OrdWrapper<T>(pub T);
+
+impl<T: Debug> std::cmp::PartialEq for OrdWrapper<T> {
+    fn eq(&self, other: &Self) -> bool {
+        format!("{:?}", self).eq(&format!("{:?}", other))
+    }
+}
+
+impl<T: Debug> Eq for OrdWrapper<T> {}
+
+impl<T: Debug> std::cmp::PartialOrd for OrdWrapper<T> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl<T: Debug> std::cmp::Ord for OrdWrapper<T> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        format!("{:?}", self).cmp(&format!("{:?}", other))
+    }
+}
+
+/*****************************************************************************/
+
+// main function
 
 pub fn elapsed(start: &Instant) -> String {
     format!("{}", humantime::Duration::from(start.elapsed()))
