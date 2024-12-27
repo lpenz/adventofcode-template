@@ -20,10 +20,8 @@ pub use std::io::BufRead;
 
 #[macro_export]
 macro_rules! parse_with {
-    ($parser:expr, $buf:ident) => {{
-        let mut input = String::default();
-        $buf.read_to_string(&mut input)?;
-        let result = all_consuming($parser)(&input).finish();
+    ($parser:expr, $input:ident) => {{
+        let result = all_consuming($parser)(&$input).finish();
         Ok(result.map_err(|e| eyre!("error reading input: {:?}", e))?.1)
     }};
 }

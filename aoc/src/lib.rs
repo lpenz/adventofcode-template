@@ -85,13 +85,12 @@ pub fn elapsed(start: &Instant) -> String {
     format!("{}", humantime::Duration::from(start.elapsed()))
 }
 
-pub fn do_main<F: Fn(&mut dyn BufRead) -> Result<T>, T: Display>(f: F) -> Result<()> {
+pub fn do_main<F: Fn(&str) -> Result<T>, T: Display>(f: F) -> Result<()> {
     color_eyre::install()?;
     let start = Instant::now();
     let cli = Cli::parse();
-    let file = std::fs::File::open(cli.filename)?;
-    let mut reader = BufReader::new(file);
-    let result = f(&mut reader)?;
+    let contents = std::fs::read_to_string(cli.filename)?;
+    let result = f(&contents)?;
     if !cli.quiet {
         println!("{}", result);
         println!("Elapsed: {}", elapsed(&start));
