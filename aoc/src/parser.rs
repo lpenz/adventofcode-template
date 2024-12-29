@@ -13,10 +13,14 @@ pub use nom::character::complete as character;
 pub use nom::character::complete::newline;
 pub use nom::character::complete::satisfy;
 pub use nom::combinator;
+pub use nom::combinator::map_res;
+pub use nom::error::context;
 pub use nom::multi;
 pub use nom::Finish;
 pub use nom::IResult;
 pub use std::io::BufRead;
+
+pub type PResult<I, O, E = nom::error::VerboseError<I>> = Result<(I, O), nom::Err<E>>;
 
 #[macro_export]
 macro_rules! parse_with {

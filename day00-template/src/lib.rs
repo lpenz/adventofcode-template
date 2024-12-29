@@ -11,17 +11,17 @@ pub mod parser {
 
     // use super::*;
 
-    fn num(input: &str) -> IResult<&str, u32> {
-        character::u32(input)
+    fn num(input: &str) -> PResult<&str, u8> {
+        nom::error::context("cannot parse u8", map_res(character::u32, u8::try_from))(input)
     }
 
-    fn line(input: &str) -> IResult<&str, u32> {
-        let (input, num) = num(input)?;
+    fn line(input: &str) -> PResult<&str, u8> {
+        let (input, num) = context("num err", num)(input)?;
         let (input, _) = character::newline(input)?;
         Ok((input, num))
     }
 
-    pub fn parse(input: &str) -> Result<Vec<u32>> {
+    pub fn parse(input: &str) -> Result<Vec<u8>> {
         aoc::parse_with!(multi::many1(line), input)
     }
 }
