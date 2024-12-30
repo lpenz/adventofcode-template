@@ -10,7 +10,7 @@ pub use std::io::Read;
 use std::path::PathBuf;
 use std::time::Instant;
 
-use clap::Parser;
+use argh::FromArgs;
 
 pub use color_eyre::eyre::eyre;
 pub use color_eyre::Report;
@@ -70,14 +70,16 @@ impl<T: Debug> std::cmp::Ord for OrdWrapper<T> {
 
 // main function
 
-#[derive(Parser)]
-#[command()]
+#[derive(FromArgs)]
+#[argh(description = "Run challenge code against the input file")]
+#[argh(help_triggers("-h", "--help"))]
 struct Cli {
-    /// Input file
+    /// input file
+    #[argh(positional)]
     filename: PathBuf,
 
-    /// Quiet mode: don't print reponse nor elapsed time
-    #[arg(short, long)]
+    /// quiet mode - don't print reponse nor elapsed time
+    #[argh(switch, short = 'q')]
     quiet: bool,
 }
 
@@ -88,7 +90,7 @@ pub fn elapsed(start: &Instant) -> String {
 pub fn do_main<F: Fn(&str) -> Result<T>, T: Display>(f: F) -> Result<()> {
     color_eyre::install()?;
     let start = Instant::now();
-    let cli = Cli::parse();
+    let cli: Cli = argh::from_env();
     let contents = std::fs::read_to_string(cli.filename)?;
     let result = f(&contents)?;
     if !cli.quiet {
