@@ -13,34 +13,13 @@ use std::time::Instant;
 use argh::FromArgs;
 
 pub use color_eyre::eyre::eyre;
+pub use color_eyre::eyre::OptionExt;
+pub use color_eyre::eyre::WrapErr;
 pub use color_eyre::Report;
 pub use color_eyre::Result;
 
 #[macro_use]
 pub mod parser;
-
-/*****************************************************************************/
-
-/// Extend Option with ok_or_eyre
-pub trait OptionExt<T> {
-    fn ok_or_eyre<M>(self, message: M) -> Result<T>
-    where
-        M: Debug + Display + Send + Sync + 'static;
-}
-
-impl<T> OptionExt<T> for Option<T> {
-    fn ok_or_eyre<M>(self, message: M) -> Result<T>
-    where
-        M: Debug + Display + Send + Sync + 'static,
-    {
-        match self {
-            Some(ok) => Ok(ok),
-            None => Err(Report::msg(message)),
-        }
-    }
-}
-
-/*****************************************************************************/
 
 /// Wrapper that adds Eq and Ord using Debug
 #[derive(Debug)]
