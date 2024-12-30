@@ -70,8 +70,9 @@ pub fn do_main<F: Fn(&str) -> Result<T>, T: Display>(f: F) -> Result<()> {
     color_eyre::install()?;
     let start = Instant::now();
     let cli: Cli = argh::from_env();
-    let contents = std::fs::read_to_string(cli.filename)?;
-    let result = f(&contents)?;
+    let contents = std::fs::read_to_string(cli.filename.clone())
+        .wrap_err_with(|| format!("error reading file {}", cli.filename.display()))?;
+    let result = f(&contents).wrap_err("error evaluating challenge solution on input")?;
     if !cli.quiet {
         println!("{}", result);
         println!("Elapsed: {}", elapsed(&start));
