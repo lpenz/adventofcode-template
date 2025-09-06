@@ -12,11 +12,11 @@ pub mod parser {
     // use super::*;
 
     fn num(input: &str) -> PResult<&str, u8> {
-        nom::error::context("cannot parse u8", map_res(character::u32, u8::try_from))(input)
+        nom::error::context("cannot parse u8", map_res(character::u32, u8::try_from)).parse(input)
     }
 
     fn line(input: &str) -> PResult<&str, u8> {
-        let (input, num) = context("num err", num)(input)?;
+        let (input, num) = context("num err", num).parse(input)?;
         let (input, _) = character::newline(input)?;
         Ok((input, num))
     }
