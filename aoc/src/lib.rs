@@ -3,20 +3,20 @@
 // file 'LICENSE', which is part of this source code package.
 
 use std::fmt::{Debug, Display};
-pub use std::io::stdin;
 pub use std::io::BufRead;
 pub use std::io::BufReader;
 pub use std::io::Read;
+pub use std::io::stdin;
 use std::path::PathBuf;
 use std::time::Instant;
 
 use argh::FromArgs;
 
-pub use color_eyre::eyre::eyre;
-pub use color_eyre::eyre::OptionExt;
-pub use color_eyre::eyre::WrapErr;
 pub use color_eyre::Report;
 pub use color_eyre::Result;
+pub use color_eyre::eyre::OptionExt;
+pub use color_eyre::eyre::WrapErr;
+pub use color_eyre::eyre::eyre;
 
 #[macro_use]
 pub mod parser;
