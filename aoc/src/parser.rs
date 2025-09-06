@@ -19,9 +19,10 @@ pub use nom::combinator;
 pub use nom::combinator::map_res;
 pub use nom::error::context;
 pub use nom::multi;
+use nom_language::error::VerboseError;
 pub use std::io::BufRead;
 
-pub type PResult<I, O, E = nom::error::Error<I>> = Result<(I, O), nom::Err<E>>;
+pub type PResult<I, O, E = VerboseError<I>> = Result<(I, O), nom::Err<E>>;
 
 #[macro_export]
 macro_rules! parse_with {
